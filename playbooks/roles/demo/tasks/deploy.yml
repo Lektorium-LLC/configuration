@@ -11,7 +11,7 @@
   shell: >
     {{ demo_edxapp_venv_bin }}/python ./manage.py cms --settings=aws import {{ demo_edxapp_course_data_dir }} {{ demo_code_dir }}
     chdir={{ demo_edxapp_code_dir }}
-  sudo_user: "{{ common_web_user }}"
+  sudo_user: "{{ demo_edxapp_user }}"
   when: demo_checkout.changed
 
 - name: create some test users and enroll them in the course
