@@ -295,6 +295,9 @@ EDXAPP_CC_PROCESSOR:
     ACCESS_KEY: ""
     PROFILE_ID: ""
 
+# optional directory for certificates
+EDXAPP_USE_LOCAL_CERTIFICATE_STORE: true
+
 # does not affect verified students
 EDXAPP_PAID_COURSE_REGISTRATION_CURRENCY: ['usd', '$']
 
@@ -583,6 +586,7 @@ edxapp_upload_dir: "{{ edxapp_data_dir }}/uploads"
 edxapp_theme_dir: "{{ edxapp_data_dir }}/themes"
 edxapp_git_identity: "{{ edxapp_app_dir }}/edxapp-git-identity"
 edxapp_git_ssh: "/tmp/edxapp_git_ssh.sh"
+edxapp_certificates_dir: "{{ edxapp_data_dir }}/certificates"
 
 # grade reports settings
 edxapp_reports_dir: "{{ edxapp_data_dir }}/report_store/"

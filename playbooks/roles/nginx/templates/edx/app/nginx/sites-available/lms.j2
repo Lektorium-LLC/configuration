@@ -114,6 +114,12 @@ error_page {{ k }} {{ v }};
     internal;
 {% endif -%}
 
+{% if EDXAPP_USE_LOCAL_CERTIFICATE_STORE -%}
+  location /certificates/ {
+      alias {{ edxapp_certificates_dir }}/;
+  }
+{% endif -%}
+
   # No basic auth for /segmentio/event
   location /segmentio/event {
     try_files $uri @proxy_to_lms_app;

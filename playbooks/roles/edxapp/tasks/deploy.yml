@@ -24,6 +24,15 @@
     - install
     - install:base
 
+- name: create edxapp certificates dir
+  file: >
+    path="{{ edxapp_certificates_dir }}" state=directory
+    owner="{{ edxapp_user }}" group="{{ common_web_group }}"
+  when: EDXAPP_USE_LOCAL_CERTIFICATE_STORE
+  tags:
+    - install
+    - install:base
+
 # Optional auth for git
 - name: create ssh script for git (not authenticated)
   template: >
