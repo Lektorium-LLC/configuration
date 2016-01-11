@@ -113,3 +113,6 @@ nginx_cfg:
 
 NGINX_ROBOT_RULES: [ ]
 NGINX_EDXAPP_EMBARGO_CIDRS: []
+
+# custom configuration overrides/fixes for lms, included after root location
+NGINX_LMS_EXTRA_CONFIG: ""
