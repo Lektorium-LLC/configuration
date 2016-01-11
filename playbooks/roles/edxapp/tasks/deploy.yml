@@ -14,7 +14,16 @@
   tags:
     - install
     - install:configuration
-    
+
+- name: create edxapp reports dir
+  file: >
+    path="{{ edxapp_reports_dir }}" state=directory
+    owner="{{ edxapp_user }}" group="{{ common_web_group }}"
+  when: EDXAPP_GRADE_STORAGE_TYPE == 'protectedfs'
+  tags:
+    - install
+    - install:base
+
 # Optional auth for git
 - name: create ssh script for git (not authenticated)
   template: >

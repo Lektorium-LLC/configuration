@@ -278,6 +278,7 @@ EDXAPP_STATIC_URL_BASE: "/static/"
 EDXAPP_GRADE_STORAGE_TYPE: 'localfs'
 EDXAPP_GRADE_BUCKET: 'edx-grades'
 EDXAPP_GRADE_ROOT_PATH: '/tmp/edx-s3/grades'
+EDXAPP_GRADE_PROTECTED_URL: '/report_store/'
 # Credit card processor
 # These are the same defaults set in common.py
 EDXAPP_CC_PROCESSOR_NAME: "CyberSource2"
@@ -583,6 +584,10 @@ edxapp_theme_dir: "{{ edxapp_data_dir }}/themes"
 edxapp_git_identity: "{{ edxapp_app_dir }}/edxapp-git-identity"
 edxapp_git_ssh: "/tmp/edxapp_git_ssh.sh"
 
+# grade reports settings
+edxapp_reports_dir: "{{ edxapp_data_dir }}/report_store/"
+edxapp_grade_root_path: "{{ edxapp_reports_dir if EDXAPP_GRADE_STORAGE_TYPE == 'protectedfs' else EDXAPP_GRADE_ROOT_PATH }}"
+
 # TODO: This can be removed once VPC-122 is resolved
 edxapp_legacy_course_data_dir: "{{ edxapp_app_dir }}/data"
 
@@ -752,7 +757,8 @@ generic_env_config:  &edxapp_generic_env
   GRADES_DOWNLOAD:
     STORAGE_TYPE: "{{ EDXAPP_GRADE_STORAGE_TYPE }}"
     BUCKET: "{{ EDXAPP_GRADE_BUCKET }}"
-    ROOT_PATH: "{{ EDXAPP_GRADE_ROOT_PATH }}"
+    ROOT_PATH: "{{ edxapp_grade_root_path }}"
+    PROTECTED_URL: "{{ EDXAPP_GRADE_PROTECTED_URL }}"
   STATIC_URL_BASE: "{{ EDXAPP_STATIC_URL_BASE }}"
   STATIC_ROOT_BASE: "{{ edxapp_staticfile_dir }}"
   LMS_BASE: "{{ EDXAPP_LMS_BASE }}"
