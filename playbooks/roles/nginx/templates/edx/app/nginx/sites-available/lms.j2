@@ -74,7 +74,7 @@ error_page {{ k }} {{ v }};
   # via hiera.
   client_max_body_size 4M;
 
-  rewrite ^(.*)/favicon.ico$ /static/images/favicon.ico last;
+  rewrite ^(.*)/favicon.ico$ {{ EDXAPP_LMS_ROOT_URL_PREFIX }}/static/images/favicon.ico last;
 
   location @proxy_to_lms_app {
     {% if NGINX_SET_X_FORWARDED_HEADERS %}
@@ -96,7 +96,7 @@ error_page {{ k }} {{ v }};
     {% include "basic-auth.j2" %}
     {% if NGINX_EDXAPP_EMBARGO_CIDRS -%}
     if ( $embargo ) {
-      rewrite ^ /embargo;
+      rewrite ^ {{ EDXAPP_LMS_ROOT_URL_PREFIX }}/embargo;
     }
     {% endif -%}
     try_files $uri @proxy_to_lms_app;
@@ -107,76 +107,76 @@ error_page {{ k }} {{ v }};
 {% endif -%}
 
 {% if NGINX_EDXAPP_EMBARGO_CIDRS %}
-  location /embargo {
+  location {{ EDXAPP_LMS_ROOT_URL_PREFIX }}/embargo {
     try_files $uri @proxy_to_lms_app;
   }
 {% endif %}
 
 {% if EDXAPP_GRADE_STORAGE_TYPE == 'protectedfs' -%}
-  location {{ EDXAPP_GRADE_PROTECTED_URL }} {
+  location {{ EDXAPP_LMS_ROOT_URL_PREFIX }}{{ EDXAPP_GRADE_PROTECTED_URL }} {
     alias {{ EDXAPP_GRADE_ROOT_PATH }};
     internal;
 {% endif -%}
 
 {% if EDXAPP_USE_LOCAL_CERTIFICATE_STORE -%}
-  location /certificates/ {
+  location {{ EDXAPP_LMS_ROOT_URL_PREFIX }}/certificates/ {
       alias {{ edxapp_certificates_dir }}/;
   }
 {% endif -%}
 
   # No basic auth for /segmentio/event
-  location /segmentio/event {
+  location {{ EDXAPP_LMS_ROOT_URL_PREFIX }}/segmentio/event {
     try_files $uri @proxy_to_lms_app;
   }
 
   # The api is accessed using OAUTH2 which
   # uses the authorization header so we can't have
   # basic auth on it as well.
-  location /api {
+  location {{ EDXAPP_LMS_ROOT_URL_PREFIX }}/api {
     try_files $uri @proxy_to_lms_app;
   }
 
   # Need a separate location for the image uploads endpoint to limit upload sizes
-  location ~ ^/api/profile_images/[^/]*/[^/]*/upload$ {
+  location ~ ^{{ EDXAPP_LMS_ROOT_URL_PREFIX }}/api/profile_images/[^/]*/[^/]*/upload$ {
     try_files $uri @proxy_to_lms_app;
     client_max_body_size {{ EDXAPP_PROFILE_IMAGE_MAX_BYTES + 1000 }};
   }
 
-  location /notifier_api {
+  location {{ EDXAPP_LMS_ROOT_URL_PREFIX }}/notifier_api {
     try_files $uri @proxy_to_lms_app;
   }
 
-  location /user_api {
+  location {{ EDXAPP_LMS_ROOT_URL_PREFIX }}/user_api {
     try_files $uri @proxy_to_lms_app;
   }
 
   # No basic auth security on the github_service_hook url, so that github can use it for cms
-  location /github_service_hook {
+  location {{ EDXAPP_LMS_ROOT_URL_PREFIX }}/github_service_hook {
     try_files $uri @proxy_to_lms_app;
   }
 
   # No basic auth security on oauth2 endpoint
-  location /oauth2 {
+  location {{ EDXAPP_LMS_ROOT_URL_PREFIX }}/oauth2 {
     try_files $uri @proxy_to_lms_app;
   }
 
   # No basic auth security on third party auth endpoints
-  location /auth {
+  location {{ EDXAPP_LMS_ROOT_URL_PREFIX }}/auth {
     try_files $uri @proxy_to_lms_app;
   }
 
 
   # No basic auth security on the heartbeat url, so that ELB can use it
-  location /heartbeat {
+  location {{ EDXAPP_LMS_ROOT_URL_PREFIX }}/heartbeat {
     try_files $uri @proxy_to_lms_app;
   }
 
   # No basic auth on the LTI provider endpoint, it does OAuth1
-  location /lti_provider {
+  location {{ EDXAPP_LMS_ROOT_URL_PREFIX }}/lti_provider {
     try_files $uri @proxy_to_lms_app;
   }
 
-  location /courses {
+  location {{ EDXAPP_LMS_ROOT_URL_PREFIX }}/courses {
     {%- if EDXAPP_ENABLE_RATE_LIMITING -%}
     # Set Limit
     limit_req zone=cookies burst={{ EDXAPP_COURSE_REQUEST_BURST_RATE }};
@@ -187,7 +187,7 @@ error_page {{ k }} {{ v }};
     try_files $uri @proxy_to_lms_app;
   }
 
-location ~ ^{{ EDXAPP_MEDIA_URL }}/(?P<file>.*) {
+location ~ ^{{ EDXAPP_LMS_ROOT_URL_PREFIX }}{{ EDXAPP_MEDIA_URL }}/(?P<file>.*) {
     root {{ edxapp_media_dir }};
     try_files /$file =404;
     expires {{ EDXAPP_PROFILE_IMAGE_MAX_AGE }}s;
