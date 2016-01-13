@@ -116,6 +116,7 @@ error_page {{ k }} {{ v }};
   location {{ EDXAPP_LMS_ROOT_URL_PREFIX }}{{ EDXAPP_GRADE_PROTECTED_URL }} {
     alias {{ EDXAPP_GRADE_ROOT_PATH }};
     internal;
+  }
 {% endif -%}
 
 {% if EDXAPP_USE_LOCAL_CERTIFICATE_STORE -%}
