@@ -114,3 +114,8 @@ nginx_cfg:
 
 NGINX_ROBOT_RULES: [ ]
 NGINX_EDXAPP_EMBARGO_CIDRS: []
+
+# custom configuration overrides and fixes, included after root location
+NGINX_LMS_EXTRA_CONFIG: ""
+NGINX_PREVIEW_EXTRA_CONFIG: ""
+NGINX_CMS_EXTRA_CONFIG: ""

@@ -802,7 +802,7 @@ generic_env_config:  &edxapp_generic_env
   SESSION_COOKIE_DOMAIN:  "{{ EDXAPP_SESSION_COOKIE_DOMAIN }}"
   SESSION_COOKIE_NAME:  "{{ EDXAPP_SESSION_COOKIE_NAME }}"
   COMMENTS_SERVICE_KEY: "{{ EDXAPP_COMMENTS_SERVICE_KEY }}"
-  THEME_NAME: "{{ edxapp_theme_name }}"
+  THEME_NAME: "{{ edxapp_lms_theme_name }}"
   TECH_SUPPORT_EMAIL: "{{ EDXAPP_TECH_SUPPORT_EMAIL }}"
   CONTACT_EMAIL: "{{ EDXAPP_CONTACT_EMAIL }}"
   BUGS_EMAIL: "{{ EDXAPP_BUGS_EMAIL }}"
@@ -960,6 +960,7 @@ worker_core_mult:
 # TODO: change variables to ALL-CAPS, since they are meant to be externally overridden
 edxapp_use_custom_theme: false
 edxapp_theme_name: ""
+edxapp_lms_theme_name: ""
 edxapp_theme_source_repo: 'https://{{ COMMON_GIT_MIRROR }}/Stanford-Online/edx-theme.git'
 edxapp_theme_version: 'master'
 
