@@ -51,6 +51,9 @@ server {
 error_page {{ k }} {{ v }};
   {% endfor %}
 
+  {%- if LMS_HOSTNAME -%}
+  server_name {{ LMS_HOSTNAME }};
+  {%- endif -%}
   listen {{ EDXAPP_LMS_NGINX_PORT }} {{ default_site }};
 
   {% if NGINX_ENABLE_SSL %}
