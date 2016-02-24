@@ -558,10 +558,6 @@ EDXAPP_SESSION_SAVE_EVERY_REQUEST: false
 
 EDXAPP_SESSION_COOKIE_SECURE: false
 
-# Url prefix for custom custom installations with root like http://univercity.org/mooc/
-# example: "/your-url-prefix"
-EDXAPP_LMS_ROOT_URL_PREFIX: ""
-
 #-------- Everything below this line is internal to the role ------------
 
 #Use YAML references (& and *) and hash merge <<: to factor out shared settings
@@ -770,7 +766,6 @@ generic_env_config:  &edxapp_generic_env
   STATIC_ROOT_BASE: "{{ edxapp_staticfile_dir }}"
   LMS_BASE: "{{ EDXAPP_LMS_BASE }}"
   CMS_BASE: "{{ EDXAPP_CMS_BASE }}"
-  LMS_ROOT_URL_PREFIX: "{{ EDXAPP_LMS_ROOT_URL_PREFIX }}"
   BOOK_URL:  "{{ EDXAPP_BOOK_URL }}"
   PLATFORM_NAME: "{{ EDXAPP_PLATFORM_NAME }}"
   STUDIO_NAME: "{{ EDXAPP_STUDIO_NAME }}"
