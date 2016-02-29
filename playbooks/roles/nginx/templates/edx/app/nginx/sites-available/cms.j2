@@ -10,6 +10,14 @@ upstream cms-backend {
     {% endfor %}
 }
 
+{% if NGINX_REDIRECT_TO_HTTPS %}
+server {
+  server_name {{ CMS_HOSTNAME }};
+  listen {{ EDXAPP_CMS_NGINX_PORT }} {{ default_site }};
+  return 301 https://$host$request_uri;
+}
+{% endif %}
+
 server {
   # CMS configuration file for nginx, templated by ansible
       
@@ -32,7 +40,6 @@ error_page {{ k }} {{ v }};
 
   {% if NGINX_ENABLE_SSL %}
 
-  listen {{ EDXAPP_CMS_NGINX_PORT }} {{ default_site }};
   listen {{ EDXAPP_CMS_SSL_NGINX_PORT }} ssl;
 
   ssl_certificate /etc/ssl/certs/{{ NGINX_SSL_CERTIFICATE|basename }};
@@ -91,6 +98,7 @@ error_page {{ k }} {{ v }};
   {% include "robots.j2" %}
   {% include "static-files.j2" %}
 
+ {# temporarily commented out
   {% if NGINX_SET_X_FORWARDED_HEADERS %}
    if ($scheme != "https") {
     rewrite ^ https://$host$uri permanent;
@@ -106,4 +114,5 @@ error_page {{ k }} {{ v }};
     rewrite ^ https://$host$request_uri? permanent;
   }
  {% endif %}
+ #}
 }
