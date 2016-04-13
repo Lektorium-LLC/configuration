@@ -121,9 +121,9 @@ error_page {{ k }} {{ v }};
     try_files $uri @proxy_to_lms_app;
   }
 
-  {%- if NGINX_LMS_EXTRA_CONFIG -%}
+  {% if NGINX_LMS_EXTRA_CONFIG -%}
     {{ NGINX_LMS_EXTRA_CONFIG }}
-  {% endif -%}
+  {%- endif %}
 
 {% if NGINX_EDXAPP_EMBARGO_CIDRS %}
   location /embargo {

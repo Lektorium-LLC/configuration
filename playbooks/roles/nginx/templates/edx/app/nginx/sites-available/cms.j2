@@ -96,9 +96,9 @@ error_page {{ k }} {{ v }};
     try_files $uri @proxy_to_cms_app;
   }
 
-  {%- if NGINX_CMS_EXTRA_CONFIG -%}
+  {% if NGINX_CMS_EXTRA_CONFIG -%}
     {{ NGINX_CMS_EXTRA_CONFIG }}
-  {% endif -%}
+  {%- endif %}
 
   # No basic auth security on the github_service_hook url, so that github can use it for cms
   location /github_service_hook {

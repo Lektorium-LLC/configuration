@@ -42,9 +42,9 @@ server {
     try_files $uri @proxy_to_lms-preview_app;
   }
 
-  {%- if NGINX_PREVIEW_EXTRA_CONFIG -%}
+  {% if NGINX_PREVIEW_EXTRA_CONFIG -%}
     {{ NGINX_PREVIEW_EXTRA_CONFIG }}
-  {% endif -%}
+  {%- endif %}
 
   # No basic auth security on the github_service_hook url, so that github can use it for cms
   location /github_service_hook {
