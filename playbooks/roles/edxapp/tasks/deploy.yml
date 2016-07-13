@@ -6,7 +6,7 @@
   tags:
     - install
     - install:configuration
-    
+
 - name: create edxapp configuration dir
   file: >
     path="{{ EDXAPP_CFG_DIR }}" state=directory
@@ -33,6 +33,27 @@
     - install
     - install:base
 
+- name: create enrollment statistics dir
+  file: >
+    path="{{ edxapp_enrollment_statistics_dir }}" state=directory
+    owner="{{ common_web_user }}" group="{{ edxapp_user }}"
+    mode="0775"
+  when: EDXAPP_GENERATE_ENROLLMENT_STATISTICS_SHEET
+  tags:
+    - install
+    - install:base
+
+- name: add cron job for enrollment statistics sheet generation
+  cron:
+    name: "cron job for enrollment statistics sheet generation"
+    user: root
+    minute: 45
+    job: "{{ edxapp_enrollment_statistics_cmd }} > /dev/null 2>&1"
+  when: EDXAPP_GENERATE_ENROLLMENT_STATISTICS_SHEET
+  tags:
+    - install
+    - install:base
+
 # Optional auth for git
 - name: create ssh script for git (not authenticated)
   template: >
@@ -42,7 +63,7 @@
   tags:
     - install
     - install:base
-  
+
 - name: create ssh script for git (authenticated)
   template: >
     src=git_ssh_auth.sh.j2 dest={{ edxapp_git_ssh }}
@@ -206,14 +227,14 @@
   tags:
     - install
     - install:app-requirements
-        
+
 - stat: path="{{ post_requirements_file }}"
   register: post_requirements
   sudo_user: "{{ edxapp_user }}"
   tags:
     - install
     - install:app-requirements
-    
+
 # Install the python post requirements into {{ edxapp_venv_dir }}
 - name : install python post-requirements
   pip: >
@@ -227,7 +248,7 @@
   tags:
     - install
     - install:app-requirements
-    
+
 # Install the python paver requirements into {{ edxapp_venv_dir }}
 - name : install python paver-requirements
   pip: >
@@ -240,7 +261,7 @@
   tags:
     - install
     - install:app-requirements
-    
+
 # Install the python custom requirements into {{ edxapp_venv_dir }}
 
 - stat: path="{{ custom_requirements_file }}"
@@ -249,7 +270,7 @@
   tags:
     - install
     - install:app-requirements
-    
+
 - name : install python custom-requirements
   pip: >
     requirements="{{ custom_requirements_file }}"
@@ -262,7 +283,7 @@
   tags:
     - install
     - install:app-requirements
-    
+
 # Install the final python modules into {{ edxapp_venv_dir }}
 - name : install python post-post requirements
   # Need to use shell rather than pip so that we can maintain the context of our current working directory; some
@@ -278,7 +299,7 @@
   tags:
     - install
     - install:app-requirements
-    
+
 # Private requriements require a ssh key to install, use the same key as the private key for edx-platform
 # If EDXAPP_INSTALL_PRIVATE_REQUIREMENTS is set to true EDXAPP_USE_GIT_IDENTITY must also be true
 - name : install python private requirements
@@ -297,7 +318,7 @@
   tags:
     - install
     - install:app-requirements
-    
+
 # Install any custom extra requirements if defined in EDXAPP_EXTRA_REQUIREMENTS.
 - name: install python extra requirements
   pip: >
@@ -311,7 +332,7 @@
   tags:
     - install
     - install:app-requirements
-    
+
 # If using CAS and you have a function for mapping attributes, install
 # the module here.  The next few tasks set up the python code sandbox
 - name: install CAS attribute module
@@ -325,7 +346,7 @@
   tags:
     - install
     - install:app-requirements
-    
+
 # Install the sandbox python modules into {{ edxapp_venv_dir }}
 - name : install sandbox requirements into regular venv
   # Need to use shell rather than pip so that we can maintain the context of our current working directory; some
@@ -343,7 +364,7 @@
   tags:
     - install
     - install:app-requirements
-    
+
 # The next few tasks set up the python code sandbox
 
 # need to disable this profile, otherwise the pip inside the sandbox venv has no permissions
@@ -399,7 +420,7 @@
   tags:
     - install
     - install:code
-  
+
   # alternative would be to give {{ common_web_user }} read access
   # to the virtualenv but that permission change will require
   # root access.
@@ -419,7 +440,7 @@
   tags:
     - install
     - install:code
-  
+
 # creates the supervisor jobs for the
 # service variants configured, runs
 # gather_assets and db migrations
@@ -497,7 +518,7 @@
     - install
     - install:configuration
     - install:code
-  
+
 - include: tag_ec2.yml tags=deploy
   when: COMMON_TAG_EC2_INSTANCE
   tags:

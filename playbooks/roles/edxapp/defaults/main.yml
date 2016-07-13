@@ -299,6 +299,9 @@ EDXAPP_CC_PROCESSOR:
 # optional directory for certificates
 EDXAPP_USE_LOCAL_CERTIFICATE_STORE: true
 
+# Settings for enrollment statistics collection
+EDXAPP_GENERATE_ENROLLMENT_STATISTICS_SHEET: false
+
 # does not affect verified students
 EDXAPP_PAID_COURSE_REGISTRATION_CURRENCY: ['usd', '$']
 
@@ -592,6 +595,9 @@ edxapp_certificates_dir: "{{ edxapp_data_dir }}/certificates"
 # grade reports settings
 edxapp_reports_dir: "{{ edxapp_data_dir }}/report_store/"
 edxapp_grade_root_path: "{{ edxapp_reports_dir if EDXAPP_GRADE_STORAGE_TYPE == 'protectedfs' else EDXAPP_GRADE_ROOT_PATH }}"
+
+edxapp_enrollment_statistics_dir: "{{ edxapp_data_dir}}/statistics/"
+edxapp_enrollment_statistics_cmd: "{{ COMMON_BIN_DIR }}/python.edxapp {{ edxapp_code_dir }}/scripts/stats.py {{ edxapp_enrollment_statistics_dir }}"
 
 # TODO: This can be removed once VPC-122 is resolved
 edxapp_legacy_course_data_dir: "{{ edxapp_app_dir }}/data"
