@@ -11,6 +11,15 @@ upstream lms-backend {
 
 }
 
+{% if NGINX_EDXAPP_ENABLE_SERVER_MAINTENANCE -%}
+geo $enable_maintenance_mode {
+    default 1;
+{% for maintenance_exception in NGINX_EDXAPP_SERVER_MAINTENANCE_EXCEPTIONS %}
+    {{ maintenance_exception }} 0;
+{% endfor %}
+}
+{%- endif %}
+
 {%- if EDXAPP_ENABLE_RATE_LIMITING -%}
 # Make Zone
 limit_req_zone $cookie_{{ EDXAPP_SESSION_COOKIE_NAME }} zone=cookies:10m rate={{ EDXAPP_COURSES_REQUEST_RATE }};
@@ -37,14 +46,22 @@ server {
 
   {% if NGINX_EDXAPP_ENABLE_S3_MAINTENANCE %}
 
-  # Do not include a 502 error in NGINX_ERROR_PAGES when 
+  # Do not include a 502 error in NGINX_ERROR_PAGES when
   # NGINX_EDXAPP_ENABLE_MAINTENANCE is enabled.
 
   error_page 502 @maintenance;
 
     {% include "s3_maintenance.j2" %}
-  
+
   {% endif %}
+  {%- if NGINX_EDXAPP_ENABLE_SERVER_MAINTENANCE -%}
+# maintenance error page
+  error_page 503 {{ nginx_server_maintenance_page }};
+  include {{ nginx_app_dir }}/maintenance;
+  if ( $maintenance = 0 ) {
+      set $enable_maintenance_mode 0;
+  }
+  {%- endif %}
 
   # error pages
   {% for k, v in NGINX_EDXAPP_ERROR_PAGES.iteritems() %}
@@ -67,14 +84,14 @@ error_page {{ k }} {{ v }};
 
   {% if NGINX_REDIRECT_TO_HTTPS %}
   # Redirect http to https over single instance
-  if ($scheme != "https") 
-  { 
+  if ($scheme != "https")
+  {
    set $do_redirect_to_https "true";
   }
 
-  # Nginx does not support nested conditions 
-  # Forward to HTTPS if we're an HTTP request... and the server is behind ELB 
-  if ($http_x_forwarded_proto = "http") 
+  # Nginx does not support nested conditions
+  # Forward to HTTPS if we're an HTTP request... and the server is behind ELB
+  if ($http_x_forwarded_proto = "http")
   {
    set $do_redirect_to_https "true";
   }
@@ -84,7 +101,7 @@ error_page {{ k }} {{ v }};
   rewrite ^ https://$host$request_uri? permanent;
   }
   {% endif %}
-  
+
   access_log {{ nginx_log_dir }}/access.log {{ NGINX_LOG_FORMAT_NAME }};
   error_log {{ nginx_log_dir }}/error.log error;
 
@@ -96,6 +113,11 @@ error_page {{ k }} {{ v }};
   rewrite ^(.*)/favicon.ico$ /static/images/favicon.ico last;
 
   location @proxy_to_lms_app {
+    {% if NGINX_EDXAPP_ENABLE_SERVER_MAINTENANCE -%}
+    if ( $enable_maintenance_mode = 1 ){
+      return 503;
+    }
+    {% endif %}
     {% if NGINX_SET_X_FORWARDED_HEADERS %}
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_set_header X-Forwarded-Port $server_port;
