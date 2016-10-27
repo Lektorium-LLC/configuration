@@ -144,8 +144,8 @@ error_page {{ k }} {{ v }};
 {% endif -%}
 
 {% if EDXAPP_USE_LOCAL_CERTIFICATE_STORE -%}
-  location /certificates/ {
-      alias {{ edxapp_certificates_dir }}/;
+  location ~ ^/certificates/([a-zA-Z0-9]+/.*\.pdf)$ {
+      alias {{ edxapp_certificates_dir }}/$1;
   }
 {% endif -%}
 
