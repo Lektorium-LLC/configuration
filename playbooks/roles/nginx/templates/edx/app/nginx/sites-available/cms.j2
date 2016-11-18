@@ -10,20 +10,37 @@ upstream cms-backend {
     {% endfor %}
 }
 
+{% if NGINX_EDXAPP_ENABLE_SERVER_MAINTENANCE -%}
+geo $enable_maintenance_mode {
+    default 1;
+{% for maintenance_exception in NGINX_EDXAPP_SERVER_MAINTENANCE_EXCEPTIONS %}
+    {{ maintenance_exception }} 0;
+{% endfor %}
+}
+{%- endif %}
+
 server {
   # CMS configuration file for nginx, templated by ansible
-      
-  # Proxy to a remote maintanence page
-  {% if NGINX_EDXAPP_ENABLE_S3_MAINTENANCE %}
 
-  # Do not include a 502 error in NGINX_ERROR_PAGES when 
+  {% if NGINX_EDXAPP_ENABLE_S3_MAINTENANCE %}
+  # Proxy to a remote maintanence page
+
+  # Do not include a 502 error in NGINX_ERROR_PAGES when
   # NGINX_EDXAPP_ENABLE_S3_MAINTENANCE is enabled.
 
   error_page 502 @maintenance;
 
     {% include "s3_maintenance.j2" %}
-  
+
   {% endif %}
+  {%- if NGINX_EDXAPP_ENABLE_SERVER_MAINTENANCE -%}
+# maintenance error page
+  error_page 503 {{ nginx_server_maintenance_page }};
+  include {{ nginx_app_dir }}/maintenance;
+  if ( $maintenance = 0 ) {
+      set $enable_maintenance_mode 0;
+  }
+  {%- endif %}
 
   # error pages
   {% for k, v in NGINX_EDXAPP_ERROR_PAGES.iteritems() %}
@@ -82,6 +99,11 @@ error_page {{ k }} {{ v }};
 
 
   location @proxy_to_cms_app {
+    {% if NGINX_EDXAPP_ENABLE_SERVER_MAINTENANCE -%}
+    if ( $enable_maintenance_mode = 1 ){
+      return 503;
+    }
+    {% endif %}
     {% if NGINX_SET_X_FORWARDED_HEADERS %}
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_set_header X-Forwarded-Port $server_port;

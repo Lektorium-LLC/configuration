@@ -178,6 +178,16 @@
     - install
     - install:configuration
 
+- name: Create NGINX maintenance configuration file
+  copy: >
+    content="set $maintenance 0;"
+    dest={{ nginx_app_dir }}/maintenance
+    owner=root group={{ common_web_user }} mode=0640
+  when: NGINX_EDXAPP_ENABLE_SERVER_MAINTENANCE
+  tags:
+    - install
+    - install:configuration
+
 - name: Write out htpasswd file
   htpasswd: >
     name={{ COMMON_HTPASSWD_USER }}
