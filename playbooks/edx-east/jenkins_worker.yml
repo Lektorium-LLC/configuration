@@ -4,12 +4,14 @@
 
 - name: Configure instance(s)
   hosts: jenkins_worker
-  sudo: True
+  become: True
   gather_facts: True
   vars:
     mongo_enable_journal: False
     serial_count: 1
     platform_worker: True
+    COMMON_SECURITY_UPDATES: yes
+    SECURITY_UPGRADE_ON_ANSIBLE: true
   serial: "{{ serial_count }}"
   vars_files:
     - roles/edxapp/defaults/main.yml
@@ -20,6 +22,7 @@
     - aws
     - mysql
     - edxlocal
+    - memcache
     - mongo
     - browsers
     - browsermob-proxy
