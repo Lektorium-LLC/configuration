@@ -3,13 +3,13 @@
 # edX Configuration
 #
 # github:     https://github.com/edx/configuration
-# wiki:       https://github.com/edx/configuration/wiki
-# code style: https://github.com/edx/configuration/wiki/Ansible-Coding-Conventions
+# wiki:       https://openedx.atlassian.net/wiki/display/OpenOPS
+# code style: https://openedx.atlassian.net/wiki/display/OpenOPS/Ansible+Code+Conventions
 # license:    https://github.com/edx/configuration/blob/master/LICENSE.TXT
 #
 ##
 # Defaults for role alton
-# 
+#
 
 #
 # vars are namespace with the module name.
@@ -54,7 +54,7 @@ alton_venv_dir: "{{ alton_venvs_dir }}/alton"
 alton_venv_bin: "{{ alton_venv_dir }}/bin"
 
 alton_source_repo: "https://github.com/edx/alton.git"
-alton_version: "HEAD"
+alton_version: "master"
 alton_requirements_file: "{{ alton_code_dir }}/requirements.txt"
 
 alton_supervisor_wrapper: "{{ alton_app_dir }}/alton-supervisor.sh"
@@ -82,7 +82,10 @@ alton_environment:
   WILL_ADMIN_USERS: "{{','.join(ALTON_ADMIN_USERS) }}"
   WILL_TWOFACTOR_SECRET: "{{ ALTON_TWOFACTOR_SECRET }}"
   WILL_NOTIFY_CALLBACK_URL: "{{ ALTON_NOTIFY_CALLBACK_URL }}"
-
+  WILL_PIPELINE_BUCKET_NAME: "{{ ALTON_PIPELINE_BUCKET_NAME }}"
+  WILL_GOCD_USERNAME: "{{ ALTON_GOCD_USERNAME }}"
+  WILL_GOCD_PASSWORD: "{{ ALTON_GOCD_PASSWORD }}"
+  WILL_GOCD_SERVER_URL: "{{ ALTON_GOCD_SERVER_URL }}"
 
 #
 # OS packages

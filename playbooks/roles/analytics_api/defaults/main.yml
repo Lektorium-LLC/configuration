@@ -3,8 +3,8 @@
 # edX Configuration
 #
 # github:     https://github.com/edx/configuration
-# wiki:       https://github.com/edx/configuration/wiki
-# code style: https://github.com/edx/configuration/wiki/Ansible-Coding-Conventions
+# wiki:       https://openedx.atlassian.net/wiki/display/OpenOPS
+# code style: https://openedx.atlassian.net/wiki/display/OpenOPS/Ansible+Code+Conventions
 # license:    https://github.com/edx/configuration/blob/master/LICENSE.TXT
 #
 ##
@@ -20,7 +20,11 @@ ANALYTICS_API_PIP_EXTRA_ARGS: "-i {{ COMMON_PYPI_MIRROR_URL }}"
 ANALYTICS_API_NGINX_PORT: "18100"
 
 ANALYTICS_API_DEFAULT_DB_NAME: 'analytics-api'
+ANALYTICS_API_DEFAULT_MYSQL_OPTIONS:
+  connect_timeout: 10
 ANALYTICS_API_REPORTS_DB_NAME: 'reports'
+ANALYTICS_API_REPORTS_MYSQL_OPTIONS:
+  connect_timeout: 10
 
 ANALYTICS_API_DATABASES:
   # rw user
@@ -31,6 +35,7 @@ ANALYTICS_API_DATABASES:
     PASSWORD: 'password'
     HOST: 'localhost'
     PORT: '3306'
+    OPTIONS: "{{ ANALYTICS_API_DEFAULT_MYSQL_OPTIONS }}"
   # read-only user
   reports:
     ENGINE: 'django.db.backends.mysql'
@@ -39,6 +44,7 @@ ANALYTICS_API_DATABASES:
     PASSWORD: 'password'
     HOST: 'localhost'
     PORT: '3306'
+    OPTIONS: "{{ ANALYTICS_API_REPORTS_MYSQL_OPTIONS }}"
 
 ANALYTICS_API_VERSION: "master"
 # Default dummy user, override this!!
@@ -54,6 +60,48 @@ ANALYTICS_API_EMAIL_HOST_PASSWORD: 'mail_password'
 ANALYTICS_API_EMAIL_PORT: 587
 ANALYTICS_API_AUTH_TOKEN: 'put-your-api-token-here'
 
+
+ANALYTICS_API_ELASTICSEARCH_LEARNERS_HOST: 'localhost'
+ANALYTICS_API_ELASTICSEARCH_LEARNERS_INDEX: 'roster_1_2'
+ANALYTICS_API_ELASTICSEARCH_LEARNERS_UPDATE_INDEX: 'index_updates'
+ANALYTICS_API_ELASTICSEARCH_CONNECTION_CLASS: !!null
+ANALYTICS_API_ELASTICSEARCH_AWS_ACCESS_KEY_ID: !!null
+ANALYTICS_API_ELASTICSEARCH_AWS_SECRET_ACCESS_KEY: !!null
+ANALYTICS_API_ELASTICSEARCH_CONNECTION_DEFAULT_REGION: 'us-east-1'
+ANALYTICS_API_DATE_FORMAT: '%Y-%m-%d'
+ANALYTICS_API_DATETIME_FORMAT: '%Y-%m-%dT%H%M%S'
+ANALYTICS_API_DEFAULT_PAGE_SIZE: 25
+ANALYTICS_API_MAX_PAGE_SIZE: 100
+ANALYTICS_API_AGGREGATE_PAGE_SIZE: 10
+
+ANALYTICS_API_BASE_URL: 'http://localhost:8100'
+ANALYTICS_API_DATA_DIR: '{{ COMMON_DATA_DIR }}/{{ analytics_api_service_name }}'
+ANALYTICS_API_MEDIA_ROOT: '{{ ANALYTICS_API_DATA_DIR }}/static/reports'
+ANALYTICS_API_MEDIA_URL: '/static/reports/'
+
+# Example settings to use Amazon S3 as a storage backend for course reports.
+#
+# This storage mechanism also provides support for pre-authenticated URLs with an expiry time,
+# allowing temporary report downloads from secured S3 file locations.
+#
+# ANALYTICS_API_REPORT_DOWNLOAD_BACKEND:
+#   DEFAULT_FILE_STORAGE: 'storages.backends.s3boto.S3BotoStorage'
+#   AWS_ACCESS_KEY_ID: 'put-your-access-key-id-here'
+#   AWS_SECRET_ACCESS_KEY: 'put-your-secret-access-key-here'
+#   AWS_STORAGE_BUCKET_NAME: 'report-download-bucket'
+#   COURSE_REPORT_FILE_LOCATION_TEMPLATE: '/{course_id}_{report_name}.csv'
+#   COURSE_REPORT_DOWNLOAD_EXPIRY_TIME: 120
+#
+# By default, instead we use the local filesystem.
+#
+# Other storage providers can be used, as long as they provide the .url() method.
+
+ANALYTICS_API_REPORT_DOWNLOAD_BACKEND:
+  DEFAULT_FILE_STORAGE: 'django.core.files.storage.FileSystemStorage'
+  MEDIA_ROOT: '{{ ANALYTICS_API_MEDIA_ROOT }}'
+  MEDIA_URL: '{{ ANALYTICS_API_BASE_URL }}{{ ANALYTICS_API_MEDIA_URL }}'
+  COURSE_REPORT_FILE_LOCATION_TEMPLATE: '{course_id}_{report_name}.csv'
+
 ANALYTICS_API_SERVICE_CONFIG:
   ANALYTICS_DATABASE: 'reports'
   SECRET_KEY: '{{ ANALYTICS_API_SECRET_KEY }}'
@@ -68,9 +116,20 @@ ANALYTICS_API_SERVICE_CONFIG:
   STATICFILES_DIRS: ['static']
   STATIC_ROOT: "{{ COMMON_DATA_DIR }}/{{ analytics_api_service_name }}/staticfiles"
   # db config
-  DATABASE_OPTIONS:
-    connect_timeout: 10
   DATABASES: '{{ ANALYTICS_API_DATABASES }}'
+  ELASTICSEARCH_LEARNERS_HOST: '{{ ANALYTICS_API_ELASTICSEARCH_LEARNERS_HOST }}'
+  ELASTICSEARCH_LEARNERS_INDEX: '{{ ANALYTICS_API_ELASTICSEARCH_LEARNERS_INDEX }}'
+  ELASTICSEARCH_LEARNERS_UPDATE_INDEX: '{{ ANALYTICS_API_ELASTICSEARCH_LEARNERS_UPDATE_INDEX }}'
+  ELASTICSEARCH_CONNECTION_CLASS: '{{ ANALYTICS_API_ELASTICSEARCH_CONNECTION_CLASS }}'
+  ELASTICSEARCH_AWS_ACCESS_KEY_ID: '{{ ANALYTICS_API_ELASTICSEARCH_AWS_ACCESS_KEY_ID }}'
+  ELASTICSEARCH_AWS_SECRET_ACCESS_KEY: '{{ ANALYTICS_API_ELASTICSEARCH_AWS_SECRET_ACCESS_KEY }}'
+  ELASTICSEARCH_CONNECTION_DEFAULT_REGION: '{{ ANALYTICS_API_ELASTICSEARCH_CONNECTION_DEFAULT_REGION }}'
+  DATE_FORMAT: '{{ ANALYTICS_API_DATE_FORMAT }}'
+  DATETIME_FORMAT: '{{ ANALYTICS_API_DATETIME_FORMAT }}'
+  DEFAULT_PAGE_SIZE: '{{ ANALYTICS_API_DEFAULT_PAGE_SIZE }}'
+  MAX_PAGE_SIZE: '{{ ANALYTICS_API_MAX_PAGE_SIZE }}'
+  AGGREGATE_PAGE_SIZE: '{{ ANALYTICS_API_AGGREGATE_PAGE_SIZE }}'
+  REPORT_DOWNLOAD_BACKEND: '{{ ANALYTICS_API_REPORT_DOWNLOAD_BACKEND }}'
 
 ANALYTICS_API_REPOS:
   - PROTOCOL: "{{ COMMON_GIT_PROTOCOL }}"
@@ -97,6 +156,8 @@ analytics_api_user: "{{ analytics_api_service_name }}"
 analytics_api_home: "{{ COMMON_APP_DIR }}/{{ analytics_api_service_name }}"
 analytics_api_code_dir: "{{ analytics_api_home }}/{{ analytics_api_service_name }}"
 analytics_api_conf_dir: "{{ analytics_api_home }}"
+analytics_api_venv_dir: "{{ analytics_api_home }}/venvs/{{ analytics_api_service_name }}"
+analytics_api_venv_bin: "{{ analytics_api_venv_dir }}/bin"
 
 analytics_api_gunicorn_host: "127.0.0.1"
 analytics_api_gunicorn_port: "8100"

@@ -1,6 +1,0 @@
-- name: Deploy Sitespeed.io
-  hosts: all
-  sudo: True
-  gather_facts: True
-  roles:
-    - sitespeedio

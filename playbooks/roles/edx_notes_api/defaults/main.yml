@@ -3,8 +3,8 @@
 # edX Configuration
 #
 # github:     https://github.com/edx/configuration
-# wiki:       https://github.com/edx/configuration/wiki
-# code style: https://github.com/edx/configuration/wiki/Ansible-Coding-Conventions
+# wiki:       https://openedx.atlassian.net/wiki/display/OpenOPS
+# code style: https://openedx.atlassian.net/wiki/display/OpenOPS/Ansible+Code+Conventions
 # license:    https://github.com/edx/configuration/blob/master/LICENSE.TXT
 #
 ##
@@ -20,7 +20,10 @@ EDX_NOTES_API_MYSQL_DB_USER: notes001
 EDX_NOTES_API_MYSQL_DB_NAME: "{{ EDX_NOTES_API_DATASTORE_NAME }}"
 EDX_NOTES_API_MYSQL_DB_PASS: secret
 EDX_NOTES_API_MYSQL_HOST: localhost
-EDX_NOTES_API_ELASTICSEARCH_URL: http://127.0.0.1:9200
+EDX_NOTES_API_MYSQL_PORT: "3306"
+EDX_NOTES_API_MYSQL_OPTIONS:
+  connect_timeout: 10
+EDX_NOTES_API_ELASTICSEARCH_URL: "localhost:9200"
 EDX_NOTES_API_NEWRELIC_APPNAME: "{{ COMMON_ENVIRONMENT }}-{{ COMMON_DEPLOYMENT }}-notes"
 # Change these values!!
 EDX_NOTES_API_SECRET_KEY: "CHANGEME"
@@ -28,6 +31,7 @@ EDX_NOTES_API_CLIENT_ID: "CHANGEME"
 EDX_NOTES_API_CLIENT_SECRET: "CHANGEME"
 EDX_NOTES_API_GIT_SSH_KEY: !!null
 EDX_NOTES_API_VERSION: master
+EDX_NOTES_API_DJANGO_SETTINGS_MODULE: 'notesserver.settings.yaml_config'
 
 EDX_NOTES_API_DATABASES:
   # rw user
@@ -37,7 +41,8 @@ EDX_NOTES_API_DATABASES:
     USER: "{{ EDX_NOTES_API_MYSQL_DB_USER }}"
     PASSWORD: "{{ EDX_NOTES_API_MYSQL_DB_PASS }}"
     HOST: "{{ EDX_NOTES_API_MYSQL_HOST }}"
-    PORT: 3306
+    PORT: "{{ EDX_NOTES_API_MYSQL_PORT }}"
+    OPTIONS: "{{ EDX_NOTES_API_MYSQL_OPTIONS }}"
 EDX_NOTES_API_ALLOWED_HOSTS:
   - localhost
 EDX_NOTES_API_DISABLE_TOKEN_CHECK: False
@@ -68,8 +73,6 @@ edx_notes_api_service_config:
   RESULTS_DEFAULT_SIZE: 25
   # Max number of rows to return in result.
   RESULTS_MAX_SIZE: 250
-  DATABASE_OPTIONS:
-    connect_timeout: 10
   DATABASES: "{{ EDX_NOTES_API_DATABASES }}"
   HAYSTACK_CONNECTIONS:
     default:
@@ -81,23 +84,33 @@ edx_notes_api_service_config:
 #
 # vars are namespace with the module name.
 #
+
+
+edx_notes_api_environment:
+  EDXNOTES_CONFIG_ROOT: "{{ COMMON_CFG_DIR }}"
+  LANG: "{{ EDX_NOTES_API_LANG }}" 
+  DJANGO_SETTINGS_MODULE: "{{ EDX_NOTES_API_DJANGO_SETTINGS_MODULE }}"
+  SERVICE_VARIANT: "{{ edx_notes_api_service_name }}"
+  PATH: "{{ edx_notes_api_venv_dir }}/bin:{{ ansible_env.PATH }}"
+
 edx_notes_api_service_name: edx_notes_api
 edx_notes_api_user: "{{ edx_notes_api_service_name }}"
 edx_notes_api_home: "{{ COMMON_APP_DIR }}/{{ edx_notes_api_service_name }}"
 edx_notes_api_code_dir: "{{ edx_notes_api_home }}/{{ edx_notes_api_service_name }}"
 edx_notes_api_conf_dir: "{{ edx_notes_api_home }}"
+edx_notes_api_venv_dir:  "{{ edx_notes_api_home }}/venvs/{{ edx_notes_api_service_name }}"
 
 edx_notes_api_gunicorn_host: "127.0.0.1"
 edx_notes_api_gunicorn_port: 8120
 edx_notes_api_gunicorn_timeout: 300
 edx_notes_api_wsgi: notesserver.wsgi:application
 edx_notes_api_nginx_port: 18120
+edx_notes_api_ssl_nginx_port: 48120
 edx_notes_api_manage: "{{ edx_notes_api_code_dir }}/manage.py" 
 edx_notes_api_requirements_base: "{{ edx_notes_api_code_dir }}/requirements"
 # Application python requirements
 edx_notes_api_requirements:
   - base.txt
-  - optional.txt
 
 #
 # OS packages

@@ -12,6 +12,8 @@
 #   my_role_var1: "bar"
 # }
 dependencies:
+  - common
+  - supervisor
   - role: edx_service
     edx_service_name: "{{ '{{' }} {{ role_name }}_service_name }}"
     edx_service_config: "{{ '{{' }} {{ role_name|upper }}_SERVICE_CONFIG }}"
@@ -19,6 +21,5 @@ dependencies:
     edx_service_user: "{{ '{{' }} {{ role_name }}_user }}"
     edx_service_home: "{{ '{{' }} {{ role_name }}_home }}"
     edx_service_packages:
-      debian: "{{ '{{' }} {{ role_name }}_debian_pkgs }}"
+      debian: "{{ '{{' }} {{ role_name }}_debian_pkgs + {{ role_name|upper }}_DEBIAN_EXTRA_PKGS }}"
       redhat: "{{ '{{' }} {{ role_name }}_redhat_pkgs }}"
-  - supervisor
