@@ -168,5 +168,6 @@ NGINX_CREATE_HTPASSWD_FILE: >
     XSERVER_ENABLE_BASIC_AUTH|bool
   }}
   #
-# custom configuration overrides/fixes for lms, included after root location
+# custom configuration overrides/fixes for lms and cms, included after root location
 NGINX_LMS_EXTRA_CONFIG: ""
+NGINX_CMS_EXTRA_CONFIG: ""
